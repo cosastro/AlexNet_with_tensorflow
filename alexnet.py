@@ -68,10 +68,20 @@ class alexNet(object):
 
     def buildCNN(self):
         """build model"""
+        # x: 1,227,227,3
+        # t1: 1,227,227,3
+        # t2: 11,11,3,96
+        # 不填充, featuremap: 227-11+2*0/4 + 1 = 55
+        # output: 1,55,55,96
         conv1 = convLayer(self.X, 11, 11, 4, 4, 96, "conv1", "VALID")
         lrn1 = LRN(conv1, 2, 2e-05, 0.75, "norm1")
         pool1 = maxPoolLayer(lrn1, 3, 3, 2, 2, "pool1", "VALID")
 
+        # input: 1,55,55,96
+        # input1: 1,55,55,48, conv:5,5,48,256, o1: 1,55,55,256
+        # input2: 1,55,55,48, conv:5,5,48,256, o2: 1,55,55,256
+        # featureMap: 55-5+2*2/1 + 1 = 55
+        # output: 1,55,55,512
         conv2 = convLayer(pool1, 5, 5, 1, 1, 256, "conv2", groups = 2)
         lrn2 = LRN(conv2, 2, 2e-05, 0.75, "lrn2")
         pool2 = maxPoolLayer(lrn2, 3, 3, 2, 2, "pool2", "VALID")
@@ -100,6 +110,7 @@ class alexNet(object):
             if name not in self.SKIP:
                 with tf.variable_scope(name, reuse = True):
                     for p in wDict[name]:
+                        print(name, p.shape)
                         if len(p.shape) == 1:
                             #bias
                             sess.run(tf.get_variable('b', trainable = False).assign(p))

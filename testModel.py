@@ -52,6 +52,7 @@ if testImg.values():
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
         model.loadModel(sess)
+        exit(0)
 
         for key,img in testImg.items():
             #img preprocess
